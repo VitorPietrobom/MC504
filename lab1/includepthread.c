@@ -38,7 +38,6 @@ void *h_thread(int[9][9] arg) {
       }
       if (!verifyTrue(verify)){
           ret = false;
-          break;
       }
       verify = [false, false, false, false, false, false, false, false, false]; 
   }
@@ -58,8 +57,7 @@ void *v_thread(int[9][9] arg) {
           verify[ arg[i][j] - 1 ] = true;
       }
       if (!verifyTrue(verify)){
-          ret = false;
-          break;
+            ret = false;
       }
       verify = [false, false, false, false, false, false, false, false, false]; 
   }
@@ -71,42 +69,18 @@ void *v_thread(int[9][9] arg) {
 void *c_thread(int[9][9] arg) {
   bool ret = true;
   bool verify[9] = [false, false, false, false, false, false , false, false, false];
-  int lim = 3
 
-  for (int z = 0 ;)
-  for (int i = 0 ; i < 3 ; i++ ){
-      for (int j = lim-3 ; j < lim ; j++ ){
-          verify[ arg[i][j] - 1 ] = true;
-      }
-      if (!verifyTrue(verify)){
-          ret = false;
-          break;
-      }
-      verify = [false, false, false, false, false, false, false, false, false]; 
-  }
+    for(int l = 0; l < 3; l++){ // varia os blocos de 3 linhas
+        for(int k = 0; k < 3; k++){ // varia os blocos de 3 colunas
+            
+            for(int i = 0; i < 3; i++){    
+                for(int j = 0; j < 3; j++)  verify[agr[i+3*l][j+3*k]-1] = true;
 
-  for (int i = 3 ; i < 6 ; i++ ){
-      for (int j = 3 ; j < 6 ; j++ ){
-          verify[ arg[i][j] - 1 ] = true;
-      }
-      if (!verifyTrue(verify)){
-          ret = false;
-          break;
-      }
-      verify = [false, false, false, false, false, false, false, false, false]; 
-  }
-
-  for (int i = 6 ; i < 9 ; i++ ){
-      for (int j = 6 ; j < 9 ; j++ ){
-          verify[ arg[i][j] - 1 ] = true;
-      }
-      if (!verifyTrue(verify)){
-          ret = false;
-          break;
-      }
-      verify = [false, false, false, false, false, false, false, false, false]; 
-  }
-  
+                if (!verifyTrue(verify))    ret = false;
+                verify = [false, false, false, false, false, false, false, false, false]; 
+            }
+        }
+    }
 
   pthread_exit(ret);
 }
