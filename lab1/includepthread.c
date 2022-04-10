@@ -91,6 +91,10 @@ void main(){
     //printMatriz(matriz);
 
     pthread_t horizontal;
+    pthread_t vertical;
+    pthread_t circular;
     pthread_create(&horizontal, NULL, h_thread, int[9][9]);
+    pthread_create(&vertical, NULL, v_thread, int[9][9]);
+    pthread_create(&circular, NULL, c_thread, int[9][9]);
  
 }
