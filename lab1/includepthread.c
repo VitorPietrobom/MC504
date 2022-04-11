@@ -85,11 +85,16 @@ void main(){
     recebeMatriz(matriz);
     printMatriz(matriz);
 
+    bool h_ret, v_ret, c_ret;
     pthread_t horizontal;
     pthread_t vertical;
     pthread_t circular;
-    pthread_create(&horizontal, NULL, h_thread, (int*) matriz;
+    pthread_create(&horizontal, NULL, h_thread, (int*) matriz);
     pthread_create(&vertical, NULL, v_thread, (int*) matriz);
     pthread_create(&circular, NULL, c_thread, (int*) matriz);
- 
+    pthread_join(&horizontal, h_ret);
+    pthread_join(&vertical, v_ret);
+    pthread_join(&circular, c_ret);
+    if(!h_ret || !v_ret || !c_ret)  printf("o sudoku esta errado");
+    else    printf("o sudoku esta correto");
 }
