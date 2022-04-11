@@ -69,34 +69,31 @@ void *c_thread(int arg[9][9]) {
         for(int k = 0; k < 3; k++){ // varia os blocos de 3 colunas
             
             for(int i = 0; i < 3; i++){    
-                for(int j = 0; j < 3; j++)  verify[arg[i+3*l][j+3*k]-1] = true;
-
-                if (!verifyTrue(verify))    ret = 0;
-                for(int z = 0; z < 9; z++)   verify[z] = false;  
+                for(int j = 0; j < 3; j++)  verify[arg[i+3*l][j+3*k]-1] = true; 
             }
+            if (!verifyTrue(verify))    ret = 0;
+            for(int z = 0; z < 9; z++)   verify[z] = false; 
         }
     }
 
   pthread_exit(&ret);
 }
 
-int main(){
+void main(){
     int matriz[9][9];
     recebeMatriz(matriz);
     printMatriz(matriz);
 
-    int* h_ret, v_ret, c_ret;
+    int h_ret, v_ret, c_ret;
     pthread_t horizontal;
     pthread_t vertical;
     pthread_t circular;
-    pthread_create(&horizontal, NULL, &h_thread, (int*) matriz);
-    pthread_create(&vertical, NULL, &v_thread, (int*) matriz);
-    pthread_create(&circular, NULL, &c_thread, (int*) matriz);
-    pthread_join(&horizontal, (void**)&(h_ret);
-    pthread_join(&vertical, (void**)&(v_ret);
-    pthread_join(&circular, (void**)&(c_ret);
+    pthread_create(&horizontal, NULL, h_thread, (int*) matriz);
+    pthread_create(&vertical, NULL, v_thread, (int*) matriz);
+    pthread_create(&circular, NULL, c_thread, (int*) matriz);
+    pthread_join(&horizontal, (void**)&(h_ret));
+    pthread_join(&vertical, (void**)&(v_ret));
+    pthread_join(&circular, (void**)&(c_ret));
     if(!h_ret || !v_ret || !c_ret)  printf("o sudoku esta errado");
     else    printf("o sudoku esta correto");
-
-    return 0;
 }
