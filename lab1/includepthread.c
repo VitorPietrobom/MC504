@@ -83,9 +83,13 @@ void *c_thread(int arg[9][9]) {
 void main(){
     int matriz[9][9];
     recebeMatriz(matriz);
-    //printMatriz(matriz);
+    printMatriz(matriz);
 
     pthread_t horizontal;
-    pthread_create(&horizontal, NULL, h_thread, (int *) matriz);
+    pthread_t vertical;
+    pthread_t circular;
+    pthread_create(&horizontal, NULL, h_thread, (int*) matriz;
+    pthread_create(&vertical, NULL, v_thread, (int*) matriz);
+    pthread_create(&circular, NULL, c_thread, (int*) matriz);
  
 }
