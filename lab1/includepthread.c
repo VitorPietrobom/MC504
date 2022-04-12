@@ -41,7 +41,7 @@ void *h_thread(int arg[9][9]) {
     }
   
 
-  pthread_exit(&ret);
+  pthread_exit(ret);
 }
 
 
@@ -57,7 +57,7 @@ void *v_thread(int arg[9][9]) {
   }
   
 
-  pthread_exit(&ret);
+  pthread_exit(ret);
 }
 
 void *c_thread(int arg[9][9]) {
@@ -76,24 +76,23 @@ void *c_thread(int arg[9][9]) {
         }
     }
 
-  pthread_exit(&ret);
+  pthread_exit(ret);
 }
 
 void main(){
     int matriz[9][9];
     recebeMatriz(matriz);
-    printMatriz(matriz);
 
-    int h_ret, v_ret, c_ret;
+    int *ret[3];
     pthread_t horizontal;
     pthread_t vertical;
     pthread_t circular;
     pthread_create(&horizontal, NULL, h_thread, (int*) matriz);
     pthread_create(&vertical, NULL, v_thread, (int*) matriz);
     pthread_create(&circular, NULL, c_thread, (int*) matriz);
-    pthread_join(&horizontal, (void**)&(h_ret));
-    pthread_join(&vertical, (void**)&(v_ret));
-    pthread_join(&circular, (void**)&(c_ret));
-    if(!h_ret || !v_ret || !c_ret)  printf("o sudoku esta errado");
+    pthread_join(horizontal, (void**)&(ret[0]));
+    pthread_join(vertical, (void**)&(ret[1]));
+    pthread_join(circular, (void**)&(ret[2]));
+    if(!ret[0] || !ret[1] || !ret[2])  printf("o sudoku esta errado");
     else    printf("o sudoku esta correto");
 }
