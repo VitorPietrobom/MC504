@@ -202,14 +202,14 @@ void main() {
     sem_init(&semaforo_fumante_tabaco, 0, 0);
     sem_init(&semaforo_fumante_fosforo, 0, 0);
     // cria as threads
-    pthread_create(&agentes, NULL, thread_agente_papel_tabaco, NULL);
+    pthread_create(&agentes, NULL, thread_semaforo_agente, NULL);
     pthread_create(&agente_papel_tabaco, NULL, thread_agente_papel_tabaco, NULL);
     pthread_create(&agente_tabaco_fosforo, NULL, thread_agente_tabaco_fosforo, NULL);
     pthread_create(&agente_fosforo_papel, NULL, thread_agente_fosforo_papel, NULL);
 
-    pthread_create(&fumante_papel, NULL, thread_agente_papel_tabaco, NULL);
-    pthread_create(&fumante_tabaco, NULL, thread_agente_papel_tabaco, NULL);
-    pthread_create(&fumante_fosforo, NULL, thread_agente_papel_tabaco, NULL);
+    pthread_create(&fumante_papel, NULL, thread_fumante_papel, NULL);
+    pthread_create(&fumante_tabaco, NULL, thread_fumante_tabaco, NULL);
+    pthread_create(&fumante_fosforo, NULL, thread_fumante_fosforo, NULL);
     // para as threads
 
     pthread_join(agentes, 0);
