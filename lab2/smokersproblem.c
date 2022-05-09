@@ -13,9 +13,9 @@ const int ID_FUMANTE_PAPEL = 1;
 const int ID_FUMANTE_TABACO = 2;
 const int ID_FUMANTE_FOSFORO = 3;
 
-bool finishProgram = false;
+volatile bool finishProgram = false;
 
-bool temTabaco, temFosforo, temPapel = false;
+volatile bool temTabaco, temFosforo, temPapel = false;
 sem_t semaforo_agentes;
 sem_t semaforo_agente_papel_tabaco;
 sem_t semaforo_agente_tabaco_fosforo;
@@ -29,8 +29,11 @@ sem_t semaforo_fumante_papel;
 sem_t semaforo_fumante_tabaco;
 sem_t semaforo_fumante_fosforo;
 
+sem_t mutex;
+
 void *thread_semaforo_agente() {
     // chama os semaforos de agentes randomicamente
+    printf("INicio!");
     int id_agente;
     for (int i = 0; i < 3; i++) {
         sem_wait(&semaforo_agentes);
@@ -79,6 +82,7 @@ void *thread_pusher_papel() {
     while(!finishProgram) {
         sem_wait(&semaforo_papel);
         // wait mutex dos pushers
+        sem_wait(&mutex);
         if (temTabaco) {
             temTabaco = false;
             sem_post(&semaforo_fumante_papel);
@@ -90,6 +94,7 @@ void *thread_pusher_papel() {
             temPapel = true;
         }
         // destravar mutex
+        sem_post(&mutex);
     }
     return 0;
 }
@@ -98,6 +103,7 @@ void *thread_pusher_tabaco() {
     while(!finishProgram) {
         sem_wait(&semaforo_tabaco);
         // wait mutex dos pushers
+        sem_wait(&mutex);
         if (temPapel) {
             temPapel = false;
             sem_post(&semaforo_fumante_fosforo);
@@ -109,6 +115,7 @@ void *thread_pusher_tabaco() {
             temTabaco = true;
         }
         // destravar mutex
+        sem_post(&mutex);
     }
     return 0;
 }
@@ -117,6 +124,7 @@ void *thread_pusher_fosforo() {
     while(!finishProgram) {
         sem_wait(&semaforo_fosforo);
         // wait mutex dos pushers
+        sem_wait(&mutex);
         if (temTabaco) {
             temTabaco = false;
             sem_post(&semaforo_fumante_papel);
@@ -127,6 +135,7 @@ void *thread_pusher_fosforo() {
         } else {
             temFosforo = true;
         }
+        sem_post(&mutex);
         // destravar mutex
     }
     return 0;
@@ -201,6 +210,9 @@ void main() {
     sem_init(&semaforo_fumante_papel, 0, 0);
     sem_init(&semaforo_fumante_tabaco, 0, 0);
     sem_init(&semaforo_fumante_fosforo, 0, 0);
+
+    sem_init(&mutex, 0, 1);
+    
     // cria as threads
     pthread_create(&agentes, NULL, thread_semaforo_agente, NULL);
     pthread_create(&agente_papel_tabaco, NULL, thread_agente_papel_tabaco, NULL);
