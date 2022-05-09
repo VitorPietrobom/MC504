@@ -29,7 +29,8 @@ sem_t semaforo_fumante_papel;
 sem_t semaforo_fumante_tabaco;
 sem_t semaforo_fumante_fosforo;
 
-sem_t mutex;
+
+pthread_mutex_t lock;
 
 void *thread_semaforo_agente() {
     // chama os semaforos de agentes randomicamente
@@ -82,7 +83,7 @@ void *thread_pusher_papel() {
     while(!finishProgram) {
         sem_wait(&semaforo_papel);
         // wait mutex dos pushers
-        sem_wait(&mutex);
+        pthread_mutex_lock(&lock);
         if (temTabaco) {
             temTabaco = false;
             sem_post(&semaforo_fumante_papel);
@@ -94,7 +95,7 @@ void *thread_pusher_papel() {
             temPapel = true;
         }
         // destravar mutex
-        sem_post(&mutex);
+        pthread_mutex_unlock(&lock);
     }
     return 0;
 }
@@ -103,7 +104,7 @@ void *thread_pusher_tabaco() {
     while(!finishProgram) {
         sem_wait(&semaforo_tabaco);
         // wait mutex dos pushers
-        sem_wait(&mutex);
+        pthread_mutex_lock(&lock);
         if (temPapel) {
             temPapel = false;
             sem_post(&semaforo_fumante_fosforo);
@@ -115,7 +116,7 @@ void *thread_pusher_tabaco() {
             temTabaco = true;
         }
         // destravar mutex
-        sem_post(&mutex);
+        pthread_mutex_unlock(&lock);
     }
     return 0;
 }
@@ -124,7 +125,7 @@ void *thread_pusher_fosforo() {
     while(!finishProgram) {
         sem_wait(&semaforo_fosforo);
         // wait mutex dos pushers
-        sem_wait(&mutex);
+        pthread_mutex_lock(&lock);
         if (temTabaco) {
             temTabaco = false;
             sem_post(&semaforo_fumante_papel);
@@ -135,8 +136,9 @@ void *thread_pusher_fosforo() {
         } else {
             temFosforo = true;
         }
-        sem_post(&mutex);
         // destravar mutex
+        pthread_mutex_unlock(&lock);
+
     }
     return 0;
 }
@@ -188,7 +190,7 @@ void *thread_fumante_fosforo() {
     return 0;
 }
 
-void main() {
+int main() {
     pthread_t agentes;
     pthread_t agente_papel_tabaco;
     pthread_t agente_tabaco_fosforo;
@@ -211,7 +213,10 @@ void main() {
     sem_init(&semaforo_fumante_tabaco, 0, 0);
     sem_init(&semaforo_fumante_fosforo, 0, 0);
 
-    sem_init(&mutex, 0, 1);
+    if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("\n mutex init has failed\n");
+        return 1;
+    }
     
     // cria as threads
     pthread_create(&agentes, NULL, thread_semaforo_agente, NULL);
@@ -232,4 +237,6 @@ void main() {
     pthread_join(fumante_papel, 0);
     pthread_join(fumante_tabaco, 0);
     pthread_join(fumante_fosforo, 0);
+
+    return 0;
 }
