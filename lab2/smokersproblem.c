@@ -438,6 +438,11 @@ int main() {
         printf("\n mutex init has failed\n");
         return 1;
     }
+
+    if (pthread_mutex_init(&isFumando_lock, NULL) != 0) {
+        printf("\n mutex init has failed\n");
+        return 1;
+    }
     
     // cria as threads
     pthread_create(&agentes, NULL, thread_semaforo_agente, NULL);
@@ -479,13 +484,14 @@ int main() {
     pthread_join(pusher_fosforo, NULL);
 
 
-
     pthread_join(fumante_papel, NULL);
     pthread_join(fumante_tabaco, NULL);
     pthread_join(fumante_fosforo, NULL);
 
 
     pthread_mutex_destroy(&lock);
+    pthread_mutex_destroy(&isFumando_lock);
+    pthread_mutex_destroy(&print_lock);
 
      return 0;
 }
