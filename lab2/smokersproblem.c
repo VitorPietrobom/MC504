@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <time.h>
 
 const int ID_AGENTE_PAPEL_TABACO = 0;
 const int ID_AGENTE_TABACO_FOSFORO = 1;
@@ -36,9 +37,9 @@ pthread_mutex_t lock;
 void *thread_semaforo_agente() {
     // chama os semaforos de agentes randomicamente
     int id_agente = 0;
+    srand ( time(NULL) );
     for (int i = 0; i < 10; i++) {
         sem_wait(&semaforo_agentes);
-        //srand ( time(NULL) );
         id_agente = rand() % 3;
         if (id_agente == ID_AGENTE_PAPEL_TABACO) {
             sem_post(&semaforo_agente_papel_tabaco);
@@ -56,6 +57,8 @@ void *thread_semaforo_agente() {
 void *thread_agente_papel_tabaco() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_papel_tabaco);
+        if(finishProgram) break;
+        printf("Papel | Tabaco\n");
         sem_post(&semaforo_papel);
         sem_post(&semaforo_tabaco);
     }
@@ -65,6 +68,8 @@ void *thread_agente_papel_tabaco() {
 void *thread_agente_tabaco_fosforo() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_tabaco_fosforo);
+        if(finishProgram) break;
+        printf("Tabaco | Fósforo\n");
         sem_post(&semaforo_tabaco);
         sem_post(&semaforo_fosforo);
     }
@@ -74,6 +79,8 @@ void *thread_agente_tabaco_fosforo() {
 void *thread_agente_fosforo_papel() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_fosforo_papel);
+        if(finishProgram) break;
+        printf("Fósforo | Papel\n");
         sem_post(&semaforo_papel);
         sem_post(&semaforo_fosforo);
     }
