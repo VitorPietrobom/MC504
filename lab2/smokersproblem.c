@@ -16,6 +16,8 @@ const int ID_FUMANTE_FOSFORO = 2;
 
 volatile bool finishProgram = false;
 
+volatile bool TabacoisFumando, FosforoisFumando, PapelisFumando = false;
+
 volatile bool temTabaco, temFosforo, temPapel = false;
 
 sem_t semaforo_agentes;
@@ -33,6 +35,8 @@ sem_t semaforo_fumante_fosforo;
 
 
 pthread_mutex_t lock;
+pthread_mutex_t print_lock;
+pthread_mutex_t isFumando_lock;
 
 void *thread_semaforo_agente() {
     // chama os semaforos de agentes randomicamente
@@ -58,7 +62,12 @@ void *thread_agente_papel_tabaco() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_papel_tabaco);
         if(finishProgram) break;
-        printf("Papel | Tabaco\n");
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                      []   +                  |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
         sem_post(&semaforo_papel);
         sem_post(&semaforo_tabaco);
     }
@@ -69,7 +78,12 @@ void *thread_agente_tabaco_fosforo() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_tabaco_fosforo);
         if(finishProgram) break;
-        printf("Tabaco | Fósforo\n");
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                      +   !                   |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
         sem_post(&semaforo_tabaco);
         sem_post(&semaforo_fosforo);
     }
@@ -80,7 +94,12 @@ void *thread_agente_fosforo_papel() {
     while(!finishProgram) {
         sem_wait(&semaforo_agente_fosforo_papel);
         if(finishProgram) break;
-        printf("Fósforo | Papel\n");
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                      []   !                  |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
         sem_post(&semaforo_papel);
         sem_post(&semaforo_fosforo);
     }
@@ -152,19 +171,200 @@ void *thread_pusher_fosforo() {
 }
 
 void fumar(char* nome_fumante) {
-    printf("Fumante do %s fumou!\n", nome_fumante);
+
+    pthread_mutex_lock(&isFumando_lock);
+
+    if (nome_fumante == "Papel"){PapelisFumando = true;}
+    else if (nome_fumante == "Fosforo"){FosforoisFumando = true;}
+    else if (nome_fumante == "Tabaco"){TabacoisFumando = true;}
+
+    if (TabacoisFumando && PapelisFumando && FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |              |              |                           }\n");
+        printf("|                |              |              |           [] + !          }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando && PapelisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |              |         !!!  |                           }\n");
+        printf("|                |              |   \\ 0 /      |           [] +            }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (PapelisFumando && FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |         +++  |              |                           }\n");
+        printf("|                |   \\ 0 /      |              |           [] !            }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando && FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |              |              |                           }\n");
+        printf("|  \\ 0 /         |              |              |           + !             }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |              |         !!!  |                           }\n");
+        printf("|  \\ 0 /         |              |   \\ 0 /      |            +              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |         +++  |              |                           }\n");
+        printf("|  \\ 0 /         |   \\ 0 /      |              |            !              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (PapelisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Começou fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |         +++  |         !!!  |                           }\n");
+        printf("|                |   \\ 0 /      |   \\ 0 /      |           []              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    }
+
+    pthread_mutex_unlock(&isFumando_lock);
+
+    sleep(1);
+
+    pthread_mutex_lock(&isFumando_lock);
+
+    if (nome_fumante == "Papel"){PapelisFumando = false;}
+    else if (nome_fumante == "Fosforo"){FosforoisFumando = false;}
+    else if (nome_fumante == "Tabaco"){TabacoisFumando = false;}
+
+    if (!TabacoisFumando && !PapelisFumando && !FosforoisFumando){
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |        +++   |         !!!  |                           }\n");
+        printf("|  \\ 0 /         |  \\ 0 /       |   \\ 0 /      |                           }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando && PapelisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |              |         !!!  |                           }\n");
+        printf("|                |              |   \\ 0 /      |           [] +            }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (PapelisFumando && FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |         +++  |              |                           }\n");
+        printf("|                |   \\ 0 /      |              |           [] !            }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando && FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |              |              |                           }\n");
+        printf("|  \\ 0 /         |              |              |           + !             }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (TabacoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |              |         !!!  |                           }\n");
+        printf("|  \\ 0 /         |              |   \\ 0 /      |            +              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (FosforoisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|         [][][] |         +++  |              |                           }\n");
+        printf("|  \\ 0 /         |   \\ 0 /      |              |            !              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    } else if (PapelisFumando){
+
+        pthread_mutex_lock(&print_lock);
+        printf("Terminou de fumar: %s\n", nome_fumante);
+        printf("|________________SALA DE ESPERA________________|______ÁREA DE FUMANTE______}\n");
+        printf("|                |         +++  |         !!!  |                           }\n");
+        printf("|                |   \\ 0 /      |   \\ 0 /      |           []              }\n");
+        printf("|________________|______________|______________|___________________________}\n\n");
+        pthread_mutex_unlock(&print_lock);
+
+    }
+
+    pthread_mutex_unlock(&isFumando_lock);
+
+
 }
 
 void fazer_cigarro(int id_fumante) {
     if (id_fumante == ID_FUMANTE_PAPEL) {
         temTabaco = false;
         temFosforo = false;
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                                              |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
     } else if (id_fumante == ID_FUMANTE_TABACO) {
         temPapel = false;
         temFosforo = false;
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                                              |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
     } else if (id_fumante == ID_FUMANTE_FOSFORO) {
         temPapel = false;
         temTabaco = false;
+        pthread_mutex_lock(&print_lock);
+        printf("_______________________MESA___________________ |\n");
+        printf("|                                              |\n");
+        printf("|                                              |\n");
+        printf("|______________________________________________|\n\n");
+        pthread_mutex_unlock(&print_lock);
     }
 }
 
@@ -197,6 +397,7 @@ void *thread_fumante_fosforo() {
         fazer_cigarro(ID_FUMANTE_FOSFORO);
         sem_post(&semaforo_agentes);
         fumar("Fosforo");
+
     }
     return NULL;
 }
@@ -229,6 +430,11 @@ int main() {
     sem_init(&semaforo_fumante_fosforo, 0, 0);
 
     if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("\n mutex init has failed\n");
+        return 1;
+    }
+
+    if (pthread_mutex_init(&print_lock, NULL) != 0) {
         printf("\n mutex init has failed\n");
         return 1;
     }
